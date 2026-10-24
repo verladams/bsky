@@ -143,6 +143,8 @@
     document.body.style.overflow = "";
   }
   lb.querySelector(".lb-close").addEventListener("click", closeLightbox);
+  // Name link: go home; close the viewer even when we're already on the home hash.
+  lb.querySelector(".lb-name").addEventListener("click", closeLightbox);
   lb.querySelector(".lb-prev").addEventListener("click", function () { show(current - 1); });
   lb.querySelector(".lb-next").addEventListener("click", function () { show(current + 1); });
   // Clicking the empty backdrop closes; clicking the photo follows the link to bsky.app (new tab).
