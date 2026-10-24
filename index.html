@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verl Adams</title>
+<meta name="description" content="Photography by Verl Adams.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <a class="name" href="#/">VERL ADAMS</a>
+  <nav id="tabs" aria-label="Galleries"></nav>
+</header>
+
+<main>
+  <div id="grid" class="grid" aria-live="polite"></div>
+  <p id="status" class="status"></p>
+</main>
+
+<div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lb-close" aria-label="Close">&times;</button>
+  <button class="lb-arrow lb-prev" aria-label="Previous photo">&#8249;</button>
+  <a id="lb-link" class="lb-link" href="#" target="_blank" rel="noopener noreferrer" title="View on Bluesky">
+    <img id="lb-img" alt="">
+  </a>
+  <button class="lb-arrow lb-next" aria-label="Next photo">&#8250;</button>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
