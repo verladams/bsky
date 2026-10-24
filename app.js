@@ -47,13 +47,11 @@
         embed.images.forEach(function (img) {
           if (seen[img.thumb]) return; // e.g. a pinned post that also appears in the timeline
           seen[img.thumb] = true;
-          var ar = img.aspectRatio;
           // Reposted photos link to the original author's post.
           out.push({
             thumb: img.thumb,
             full: img.fullsize,
             alt: img.alt || "",
-            ratio: ar && ar.width && ar.height ? ar.width / ar.height : 1,
             href: postUrl(post.author.handle, post.uri)
           });
         });
@@ -74,38 +72,13 @@
   }
 
   // ---- rendering ----
-  var tiles = [];
-  var colCount = 0;
-
-  function columnsFor(w) { return w >= 1024 ? 3 : w >= 640 ? 2 : 1; }
-
-  // Photos keep their natural proportions. Each goes in the shortest column, so the
-  // newest photos stay near the top and the columns end up about the same height.
-  function layout() {
-    colCount = columnsFor(window.innerWidth);
-    gridEl.textContent = "";
-    var cols = [], heights = [];
-    for (var c = 0; c < colCount; c++) {
-      var col = document.createElement("div");
-      col.className = "col";
-      gridEl.appendChild(col);
-      cols.push(col);
-      heights.push(0);
-    }
-    tiles.forEach(function (t, i) {
-      var k = heights.indexOf(Math.min.apply(null, heights));
-      cols[k].appendChild(t);
-      heights[k] += 1 / photos[i].ratio;
-    });
-  }
-
   function draw(list) {
     photos = list;
-    tiles = list.map(function (p, i) {
+    gridEl.textContent = "";
+    list.forEach(function (p, i) {
       var b = document.createElement("button");
       b.className = "tile";
       b.type = "button";
-      b.style.aspectRatio = String(p.ratio);
       b.setAttribute("aria-label", p.alt || "Open photo " + (i + 1));
       var img = document.createElement("img");
       img.src = p.thumb;
@@ -115,14 +88,9 @@
       if (img.complete) img.classList.add("loaded");
       b.appendChild(img);
       b.addEventListener("click", function () { openLightbox(i); });
-      return b;
+      gridEl.appendChild(b);
     });
-    layout();
   }
-
-  window.addEventListener("resize", function () {
-    if (tiles.length && columnsFor(window.innerWidth) !== colCount) layout();
-  });
 
   async function route() {
     var token = ++renderToken;
@@ -134,7 +102,6 @@
       a.classList.toggle("active", !!tab && a.dataset.slug === s);
     });
     document.title = tab ? "Verl Adams — " + tab.name : "Verl Adams";
-    tiles = [];
     gridEl.textContent = "";
     statusEl.textContent = "Loading…";
 
