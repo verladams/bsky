@@ -35,7 +35,18 @@
       }
       var a = document.createElement("a");
       a.href = "#/" + slug(t);
-      a.textContent = t.name;
+      var label = document.createElement("span");
+      label.className = "t-name";
+      label.textContent = t.name;
+      a.appendChild(label);
+      if (t.hover) { // shown instead of the name while the pointer is over the tab
+        a.classList.add("has-sub");
+        var sub = document.createElement("span");
+        sub.className = "t-sub";
+        sub.setAttribute("aria-hidden", "true");
+        sub.textContent = t.hover;
+        a.appendChild(sub);
+      }
       a.dataset.slug = slug(t);
       row.appendChild(a);
     });

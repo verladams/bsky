@@ -36,6 +36,14 @@ nav a {
   transition: color .2s, border-color .2s;
 }
 nav a:hover, nav a.active { color: var(--ink); }
+/* Hover text: sits centred over the tab, so the tab's own width (and its neighbours) never move. */
+nav a { position: relative; }
+nav a .t-sub { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); white-space: nowrap; font-size: .74rem; letter-spacing: .08em; opacity: 0; pointer-events: none; } /* a little tighter than the tab names so longer hover text keeps clear of its neighbours */
+nav a .t-name, nav a .t-sub { transition: opacity .2s; }
+@media (hover: hover) {
+  nav a.has-sub:hover .t-sub { opacity: 1; }
+  nav a.has-sub:hover .t-name { opacity: 0; }
+}
 nav a.active { border-bottom-color: var(--ink); }
 
 main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
