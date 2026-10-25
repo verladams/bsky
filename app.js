@@ -139,6 +139,8 @@
   var lbCap = document.getElementById("lb-cap");
 
   var TAG_RE = /#[\p{L}][\p{L}\p{N}_]*/gu;
+  // "(🚫AI)" marks a photo as not AI-generated; dropping only the emoji would flip its meaning, so remove the whole note.
+  var NO_AI_RE = /\(?\s*\u{1F6AB}\uFE0F?\s*AI(?![\p{L}\p{N}])\s*\)?/giu;
   // Emoji (and the joiners/modifiers that go with them); (c) (R) and TM are kept.
   var EMOJI_RE = /(?![\u00a9\u00ae\u2122])\p{Extended_Pictographic}|\p{Emoji_Modifier}|\p{Regional_Indicator}|[\ufe0e\ufe0f\u200d\u20e3]/gu;
 
@@ -189,7 +191,7 @@
         frag.appendChild(a);
         return;
       }
-      var s = g.s.replace(EMOJI_RE, "").replace(/\(\s*\)/g, "").replace(/\s+/g, " ");
+      var s = g.s.replace(NO_AI_RE, " ").replace(EMOJI_RE, "").replace(/\(\s*\)/g, "").replace(/\s+/g, " ");
       if (i === 0) s = s.replace(/^\s+/, "");
       if (i === merged.length - 1) s = s.replace(/\s+$/, "");
       if (s) frag.appendChild(document.createTextNode(s));
