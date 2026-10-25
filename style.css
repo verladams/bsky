@@ -78,6 +78,7 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 /* Home page slide show: one photo at a time, fading between them */
 .slides { position: fixed; left: 0; right: 0; bottom: 0; top: var(--head-h, 129px); }
 .slides[hidden] { display: none; }
+.slides { cursor: pointer; }
 .slide-stage { position: absolute; inset: 0 24px 24px; }
 .slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity var(--fade, 1500ms) ease-in-out; }
 body.home main { visibility: hidden; }

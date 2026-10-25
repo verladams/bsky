@@ -155,11 +155,13 @@
   // ---- home page slide show ----
   var slidesEl = document.getElementById("slides");
   var layers = Array.prototype.slice.call(slidesEl.querySelectorAll(".slide"));
-  var slideRun = 0, slideTimer = null;
+  var slideRun = 0, slideTimer = null, advanceSlide = null;
+  slidesEl.addEventListener("click", function () { if (advanceSlide) advanceSlide(); });
   slidesEl.style.setProperty("--fade", cfg.slideFade + "ms");
 
   function stopSlides() {
     slideRun++;
+    advanceSlide = null;
     clearTimeout(slideTimer);
     slidesEl.hidden = true;
     document.body.classList.remove("home");
@@ -167,9 +169,10 @@
   }
 
   // Shows the photos one at a time in random order, fading each into the next.
+  // Clicking the photo moves on straight away, with a shorter fade.
   function startSlides(list) {
     stopSlides();
-    var run = slideRun, i = 0, front = 0;
+    var run = slideRun, i = 0, shown = null, busy = false, pending = null;
     slidesEl.hidden = false;
     document.body.classList.add("home");
 
@@ -182,31 +185,41 @@
       });
     }
 
-    async function step() {
-      if (run !== slideRun) return;
-      if (document.hidden) { slideTimer = setTimeout(step, 1000); return; } // wait while the tab is in the background
+    async function step(manual) {
+      if (run !== slideRun || busy) return;
+      clearTimeout(slideTimer);
+      if (document.hidden && !manual) { slideTimer = setTimeout(step, 1000); return; } // wait while the tab is in the background
+      busy = true;
       var ok = false, tries = 0;
       while (!ok && tries < 5 && run === slideRun) { // skip any photo that fails to load
-        ok = await preload(list[i]);
+        ok = await (pending || preload(list[i]));
+        pending = null;
         if (!ok) { i = (i + 1) % list.length; tries++; }
       }
       if (run !== slideRun) return;
-      if (!ok) { statusEl.textContent = "Couldn\u2019t load photos from Bluesky. Please try again later."; return; }
+      if (!ok) { statusEl.textContent = "Couldn\u2019t load photos from Bluesky. Please try again later."; busy = false; return; }
 
-      var next = layers[1 - front], prev = layers[front];
+      // Use a layer that is completely invisible, so a quick series of clicks never makes a photo jump.
+      var next = layers.filter(function (l) { return l !== shown && parseFloat(getComputedStyle(l).opacity) < 0.02; })[0];
+      if (!next) { busy = false; slideTimer = setTimeout(step, 300); return; } // every layer is mid-fade: try again in a moment
       next.src = list[i].full;
       next.alt = list[i].alt;
       try { await next.decode(); } catch (e) { /* shown anyway */ }
       if (run !== slideRun) return;
+      slidesEl.style.setProperty("--fade", (manual ? Math.min(450, cfg.slideFade) : cfg.slideFade) + "ms");
       statusEl.textContent = "";
       next.style.opacity = 1;
-      prev.style.opacity = 0;
-      front = 1 - front;
+      if (shown) shown.style.opacity = 0;
+      shown = next;
 
       i++;
       if (i >= list.length) { i = 0; shuffle(list); } // everything has been shown: start a new random round
+      pending = preload(list[i]); // load the next photo now, so a click shows it instantly
+      busy = false;
       slideTimer = setTimeout(step, cfg.slideInterval);
     }
+
+    advanceSlide = function () { step(true); };
     step();
   }
 
