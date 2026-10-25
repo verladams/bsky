@@ -118,8 +118,8 @@ body.home main .status { visibility: visible; }
 .lb-cap a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); transition: border-color .2s; }
 .lb-cap a:hover { border-bottom-color: var(--ink); }
 /* First caption line: date, reposts, likes, View post - every group the same distance apart. */
-.lb-date { margin-bottom: 4px; color: var(--muted); letter-spacing: .08em; display: flex; flex-wrap: wrap; align-items: center; column-gap: 24px; }
-.lb-date .when { display: inline-flex; align-items: center; gap: 6px; margin-right: -.08em; } /* margin cancels the letter-spacing left after the last character */
+.lb-date { --gap: 24px; margin-bottom: 4px; color: var(--muted); letter-spacing: .08em; display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--gap); }
+.lb-date .when { display: inline-flex; align-items: center; gap: var(--gap); margin-right: -.08em; } /* margin cancels the letter-spacing left after the last character */
 .lb-date .when svg { display: block; flex: none; }
 .lb-date .stat { display: inline-flex; align-items: center; gap: 5px; letter-spacing: .02em; line-height: 1; }
 .lb-date .stat svg { display: block; }
@@ -148,6 +148,6 @@ body.home main .status { visibility: visible; }
   .lb-scroll { padding: 0 10px 10px; }
   .lb-scroll header { margin: 0 -10px; }
   .lb-cap { font-size: .75rem; }
-  .lb-date { column-gap: 16px; }
+  .lb-date { --gap: 16px; }
   .lb-arrow { width: 44px; font-size: 2.6rem; }
 }
