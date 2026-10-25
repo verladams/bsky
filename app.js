@@ -271,7 +271,7 @@
     }
     if (p.reposts !== null) d.appendChild(statEl(REPOST, p.reposts, "repost"));
     if (p.likes !== null) d.appendChild(statEl(HEART, p.likes, "like"));
-    var view = linkEl("View post", p.href);
+    var view = linkEl("view post", p.href);
     view.className = "post-link";
     d.appendChild(view);
     lbCap.appendChild(d);
