@@ -68,8 +68,8 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 .lightbox[hidden] { display: none; }
 .lightbox { padding: 88px 80px 40px; }
 .lb-fig { margin: 0; visibility: hidden; } /* sized by app.js once the photo has loaded */
-.lb-link { display: block; cursor: pointer; }
-.lb-link img { display: block; }
+.lb-photo { cursor: pointer; }
+.lb-photo img { display: block; }
 .lb-cap {
   margin-top: 14px;
   max-height: 35vh;
@@ -82,6 +82,7 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 }
 .lb-cap a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); transition: border-color .2s; }
 .lb-cap a:hover { border-bottom-color: var(--ink); }
+.lb-date { margin-bottom: 4px; color: var(--muted); letter-spacing: .08em; }
 .lb-cap .sep { color: var(--muted); margin: 0 .5em; }
 .lightbox button {
   position: absolute; background: none; border: 0; color: var(--ink);

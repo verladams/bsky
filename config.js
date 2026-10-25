@@ -1,6 +1,7 @@
 // Edit this file to add, remove or rename galleries.
 window.SITE = {
   imagesPerPage: 32,
+  poolSize: 200, // each page shows a random 32 from an account's most recent photos
   api: "https://public.api.bsky.app",
   tabs: [
     { name: "-|~|+",      handle: "verladams.bsky.social" },
