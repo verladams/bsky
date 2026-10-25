@@ -263,8 +263,10 @@
     var line = parseFloat(ccs.lineHeight) || parseFloat(ccs.fontSize) * 1.7;
     var dateEl = lbCap.querySelector(".lb-date");
     var reserve = dateEl ? dateEl.offsetHeight : line;
-    var s = Math.min(availW / nw, (availH - capGap - reserve) / nh, 1);
-    if (!(s > 0)) s = Math.min(availW / nw, 1);
+    // Fit the window, but never below the minimum height (width still wins on narrow screens);
+    // a photo taller than the window is reached by scrolling.
+    var fitH = (availH - capGap - reserve) / nh;
+    var s = Math.min(availW / nw, Math.max(fitH, cfg.minPhotoHeight / nh), 1);
     var w = Math.floor(nw * s), h = Math.floor(nh * s);
     lbFig.style.width = w + "px";
     lbImg.style.width = w + "px";
@@ -272,7 +274,8 @@
     // The photo stays pinned just under the header so a narrower window shrinks it upward;
     // the arrows sit at the photo's vertical midpoint.
     lbFig.style.marginTop = "0";
-    stage.style.setProperty("--arrow-y", (parseFloat(cs.paddingTop) + h / 2) + "px");
+    // (if the photo is taller than the window, they stay at the middle of the visible area)
+    stage.style.setProperty("--arrow-y", Math.min(parseFloat(cs.paddingTop) + h / 2, scroller.clientHeight / 2) + "px");
     lbFig.style.visibility = "visible";
   }
   lbImg.addEventListener("load", fit);

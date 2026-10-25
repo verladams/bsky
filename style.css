@@ -9,7 +9,7 @@ body {
   font-weight: 300;
 }
 
-header { text-align: center; padding: 48px 16px 28px; }
+header { text-align: center; padding: 24px 16px 28px; } /* top gap ~ the name-to-tabs gap */
 .name {
   display: inline-block;
   color: var(--ink);
@@ -111,7 +111,6 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 }
 
 @media (max-width: 600px) {
-  header { padding-top: 32px; }
   .name { font-size: 1.25rem; }
   main { padding: 0 10px 40px; }
   .grid { gap: 8px; }
