@@ -74,6 +74,7 @@
             href: postUrl(post.author.handle, post.uri),
             handle: post.author.handle,
             date: (post.record && post.record.createdAt) || post.indexedAt || "",
+            likes: typeof post.likeCount === "number" ? post.likeCount : null,
             text: (post.record && post.record.text) || "",
             facets: (post.record && post.record.facets) || []
           });
@@ -239,7 +240,8 @@
     if (when) {
       var d = document.createElement("div");
       d.className = "lb-date";
-      d.textContent = "Posted: " + when;
+      d.textContent = "Posted: " + when +
+        (p.likes === null ? "" : "  \u00b7  " + p.likes.toLocaleString("en-US") + (p.likes === 1 ? " like" : " likes"));
       lbCap.appendChild(d);
     }
     var body = document.createElement("div");
