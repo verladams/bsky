@@ -231,10 +231,16 @@
     return frag;
   }
 
+  var narrow = window.matchMedia("(max-width: 600px)");
+  narrow.addEventListener("change", function () {
+    if (!lb.hidden) { buildCaption(photos[current]); fit(); }
+  });
+
   function formatDate(iso) {
     var d = new Date(iso);
     if (isNaN(d)) return "";
-    return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    // Phones get an abbreviated month (Sep 30, 2025) so the whole first line fits on one row.
+    return d.toLocaleDateString("en-US", { year: "numeric", month: narrow.matches ? "short" : "long", day: "numeric" });
   }
 
   function linkEl(label, href) {
@@ -244,14 +250,15 @@
   }
 
   // Heart and repost icons, as used on Bluesky (Material Design icons, Apache 2.0), followed by the count.
-  var HEART = "M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z";
-  var REPOST = "M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z";
+  // Each icon is cropped to its drawn area so spacing is measured from what you actually see.
+  var HEART = { d: "M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z", box: "2 3 20 18.35", w: 16, h: 14.7 };
+  var REPOST = { d: "M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z", box: "3 2 18 20", w: 13.5, h: 15 };
   var compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
-  function statEl(path, n, noun) {
+  function statEl(icon, n, noun) {
     var s = document.createElement("span");
     s.className = "stat";
     s.title = n.toLocaleString("en-US") + " " + noun + (n === 1 ? "" : "s");
-    s.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="' + path + '"/></svg>';
+    s.innerHTML = '<svg viewBox="' + icon.box + '" width="' + icon.w + '" height="' + icon.h + '" aria-hidden="true"><path fill="currentColor" d="' + icon.d + '"/></svg>';
     s.appendChild(document.createTextNode(compact.format(n)));
     return s;
   }
@@ -262,7 +269,12 @@
     var when = formatDate(p.date);
     var d = document.createElement("div");
     d.className = "lb-date";
-    if (when) d.appendChild(document.createTextNode(when));
+    if (when) {
+      var w = document.createElement("span");
+      w.className = "when";
+      w.textContent = when;
+      d.appendChild(w);
+    }
     if (p.likes !== null) d.appendChild(statEl(HEART, p.likes, "like"));
     if (p.reposts !== null) d.appendChild(statEl(REPOST, p.reposts, "repost"));
     var view = linkEl("View post", p.href);
