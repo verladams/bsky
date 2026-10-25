@@ -231,16 +231,10 @@
     return frag;
   }
 
-  var narrow = window.matchMedia("(max-width: 600px)");
-  narrow.addEventListener("change", function () {
-    if (!lb.hidden) { buildCaption(photos[current]); fit(); }
-  });
-
   function formatDate(iso) {
     var d = new Date(iso);
     if (isNaN(d)) return "";
-    // Phones get an abbreviated month (Sep 30, 2025) so the whole first line fits on one row.
-    return d.toLocaleDateString("en-US", { year: "numeric", month: narrow.matches ? "short" : "long", day: "numeric" });
+    return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }); // e.g. Oct 10, 2025
   }
 
   function linkEl(label, href) {
@@ -265,7 +259,7 @@
 
   function buildCaption(p) {
     lbCap.textContent = "";
-    // First line: date, likes, reposts, then the link to the post.
+    // First line: date, reposts, likes, then the link to the post.
     var when = formatDate(p.date);
     var d = document.createElement("div");
     d.className = "lb-date";
@@ -275,8 +269,8 @@
       w.textContent = when;
       d.appendChild(w);
     }
-    if (p.likes !== null) d.appendChild(statEl(HEART, p.likes, "like"));
     if (p.reposts !== null) d.appendChild(statEl(REPOST, p.reposts, "repost"));
+    if (p.likes !== null) d.appendChild(statEl(HEART, p.likes, "like"));
     var view = linkEl("View post", p.href);
     view.className = "post-link";
     d.appendChild(view);
