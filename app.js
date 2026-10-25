@@ -353,6 +353,8 @@
   // Each icon is cropped to its drawn area so spacing is measured from what you actually see.
   var HEART = { d: "M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z", box: "2 3 20 18.35", w: 16, h: 14.7 };
   var REPOST = { d: "M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z", box: "3 2 18 20", w: 13.5, h: 15 };
+  // The Bluesky butterfly.
+  var BUTTERFLY = "m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1937 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z";
   var compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
   function statEl(icon, n, noun) {
     var s = document.createElement("span");
@@ -369,12 +371,11 @@
     var when = formatDate(p.date);
     var d = document.createElement("div");
     d.className = "lb-date";
-    if (when) {
-      var w = document.createElement("span");
-      w.className = "when";
-      w.textContent = when;
-      d.appendChild(w);
-    }
+    var w = document.createElement("span"); // Bluesky butterfly, then the date
+    w.className = "when";
+    w.innerHTML = '<svg viewBox="0 0 600 530" width="16.5" height="14.6" aria-hidden="true"><path fill="currentColor" d="' + BUTTERFLY + '"/></svg>';
+    if (when) w.appendChild(document.createTextNode(when));
+    d.appendChild(w);
     if (p.reposts !== null) d.appendChild(statEl(REPOST, p.reposts, "repost"));
     if (p.likes !== null) d.appendChild(statEl(HEART, p.likes, "like"));
     var view = linkEl("view post", p.href);

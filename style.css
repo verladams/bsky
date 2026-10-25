@@ -119,7 +119,8 @@ body.home main .status { visibility: visible; }
 .lb-cap a:hover { border-bottom-color: var(--ink); }
 /* First caption line: date, reposts, likes, View post - every group the same distance apart. */
 .lb-date { margin-bottom: 4px; color: var(--muted); letter-spacing: .08em; display: flex; flex-wrap: wrap; align-items: center; column-gap: 24px; }
-.lb-date .when { margin-right: -.08em; } /* cancel the letter-spacing left after the last character */
+.lb-date .when { display: inline-flex; align-items: center; gap: 6px; margin-right: -.08em; } /* margin cancels the letter-spacing left after the last character */
+.lb-date .when svg { display: block; flex: none; }
 .lb-date .stat { display: inline-flex; align-items: center; gap: 5px; letter-spacing: .02em; line-height: 1; }
 .lb-date .stat svg { display: block; }
 .lb-date .post-link { letter-spacing: .02em; }
