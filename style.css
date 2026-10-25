@@ -97,7 +97,9 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 }
 .lb-cap a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); transition: border-color .2s; }
 .lb-cap a:hover { border-bottom-color: var(--ink); }
-.lb-date { margin-bottom: 4px; color: var(--muted); letter-spacing: .08em; }
+.lb-date { margin-bottom: 4px; color: var(--muted); letter-spacing: .08em; display: flex; flex-wrap: wrap; align-items: center; }
+.lb-date .stat { display: inline-flex; align-items: center; gap: 5px; margin-left: 1.4em; letter-spacing: .02em; line-height: 1; }
+.lb-date .stat svg { display: block; }
 .lb-cap .sep { color: var(--muted); margin: 0 .5em; }
 .lightbox button {
   position: absolute; background: none; border: 0; color: var(--ink);

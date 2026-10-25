@@ -75,6 +75,7 @@
             handle: post.author.handle,
             date: (post.record && post.record.createdAt) || post.indexedAt || "",
             likes: typeof post.likeCount === "number" ? post.likeCount : null,
+            reposts: typeof post.repostCount === "number" ? post.repostCount : null,
             text: (post.record && post.record.text) || "",
             facets: (post.record && post.record.facets) || []
           });
@@ -234,14 +235,28 @@
     return a;
   }
 
+  // Heart and repost icons, as used on Bluesky (Material Design icons, Apache 2.0), followed by the count.
+  var HEART = "M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z";
+  var REPOST = "M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z";
+  var compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+  function statEl(path, n, noun) {
+    var s = document.createElement("span");
+    s.className = "stat";
+    s.title = n.toLocaleString("en-US") + " " + noun + (n === 1 ? "" : "s");
+    s.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="' + path + '"/></svg>';
+    s.appendChild(document.createTextNode(compact.format(n)));
+    return s;
+  }
+
   function buildCaption(p) {
     lbCap.textContent = "";
     var when = formatDate(p.date);
     if (when) {
       var d = document.createElement("div");
       d.className = "lb-date";
-      d.textContent = "Posted: " + when +
-        (p.likes === null ? "" : "  \u00b7  " + p.likes.toLocaleString("en-US") + (p.likes === 1 ? " like" : " likes"));
+      d.appendChild(document.createTextNode("Posted: " + when));
+      if (p.likes !== null) d.appendChild(statEl(HEART, p.likes, "like"));
+      if (p.reposts !== null) d.appendChild(statEl(REPOST, p.reposts, "repost"));
       lbCap.appendChild(d);
     }
     var body = document.createElement("div");
