@@ -11,7 +11,9 @@ body {
 
 header { text-align: center; padding: 24px 16px 28px; }
 /* Gallery pages: the header stays put while the photos scroll beneath it. */
-body > header { position: sticky; top: 0; z-index: 5; background: #fff; } /* top gap ~ the name-to-tabs gap */
+/* Fixed (not sticky) because iPhone Safari is the least forgiving; app.js sets --head-h to the header's height so the photos start just below it. */
+body > header { position: fixed; top: 0; left: 0; right: 0; z-index: 5; background: #fff; }
+body { padding-top: var(--head-h, 129px); }
 .name {
   display: inline-block;
   color: var(--ink);

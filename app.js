@@ -13,6 +13,13 @@
 
   function slug(tab) { return tab.handle.split(".")[0]; }
 
+  // ---- fixed header: keep the photos just below it, whatever height the tabs make it ----
+  var pageHeader = document.querySelector("body > header");
+  function syncHeader() { document.documentElement.style.setProperty("--head-h", pageHeader.offsetHeight + "px"); }
+  if (window.ResizeObserver) new ResizeObserver(syncHeader).observe(pageHeader);
+  window.addEventListener("resize", syncHeader);
+  window.addEventListener("load", syncHeader);
+
   // ---- tabs ----
   var lbTabsEl = document.getElementById("lb-tabs"); // the viewer carries the same tabs
   // Tabs are grouped into two rows of equal size (first half / second half). On wide screens the
@@ -247,7 +254,7 @@
     lbCap.appendChild(body);
   }
 
-  var photoMid = 0;
+  var photoMid = 0, keepScroll = null;
   function placeArrows() {
     var sc = document.getElementById("lb-scroll");
     var y = Math.max(70, Math.min(photoMid - sc.scrollTop, sc.clientHeight - 70));
@@ -285,6 +292,7 @@
     lbFig.style.marginTop = "0";
     // The arrows follow the photo's midpoint as the page scrolls, staying within view.
     photoMid = headH + parseFloat(cs.paddingTop) + h / 2;
+    if (keepScroll !== null) { scroller.scrollTop = keepScroll; keepScroll = null; } // same scroll position on the next photo
     placeArrows();
     lbFig.style.visibility = "visible";
   }
@@ -295,7 +303,7 @@
     current = (i + photos.length) % photos.length;
     var p = photos[current];
     lbFig.style.visibility = "hidden";
-    document.getElementById("lb-scroll").scrollTop = 0;
+    keepScroll = document.getElementById("lb-scroll").scrollTop; // restored once the new photo is sized
     buildCaption(p);
     lbImg.alt = p.alt;
     if (lbImg.getAttribute("src") === p.full && lbImg.complete && lbImg.naturalWidth) fit();
@@ -304,6 +312,7 @@
   function openLightbox(i) {
     lb.hidden = false;
     document.body.style.overflow = "hidden";
+    document.getElementById("lb-scroll").scrollTop = 0; // a fresh viewer always starts at the top
     show(i);
   }
   function closeLightbox() {
