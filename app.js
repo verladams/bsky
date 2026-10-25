@@ -260,6 +260,12 @@
       if (nextCap === capH) break;
       capH = nextCap;
     }
+    // Centre the photo in the space below the header (caption hangs beneath it and moves with it);
+    // if the caption wouldn't fit below a centred photo, lift the whole block just enough.
+    var top = Math.max(0, Math.min((availH - h) / 2, availH - (h + capGap + capH)));
+    lbFig.style.marginTop = top + "px";
+    // Arrows sit at the photo's vertical midpoint.
+    stage.style.setProperty("--arrow-y", (parseFloat(cs.paddingTop) + top + h / 2) + "px");
     lbFig.style.visibility = "visible";
   }
   lbImg.addEventListener("load", fit);
