@@ -237,7 +237,6 @@
     return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   }
 
-  function sepEl() { var s = document.createElement("span"); s.className = "sep"; s.textContent = "\u00b7"; return s; }
   function linkEl(label, href) {
     var a = document.createElement("a");
     a.href = href; a.textContent = label; a.target = "_blank"; a.rel = "noopener noreferrer";
@@ -259,15 +258,17 @@
 
   function buildCaption(p) {
     lbCap.textContent = "";
+    // First line: date, likes, reposts, then the link to the post.
     var when = formatDate(p.date);
-    if (when) {
-      var d = document.createElement("div");
-      d.className = "lb-date";
-      d.appendChild(document.createTextNode("Posted: " + when));
-      if (p.likes !== null) d.appendChild(statEl(HEART, p.likes, "like"));
-      if (p.reposts !== null) d.appendChild(statEl(REPOST, p.reposts, "repost"));
-      lbCap.appendChild(d);
-    }
+    var d = document.createElement("div");
+    d.className = "lb-date";
+    if (when) d.appendChild(document.createTextNode(when));
+    if (p.likes !== null) d.appendChild(statEl(HEART, p.likes, "like"));
+    if (p.reposts !== null) d.appendChild(statEl(REPOST, p.reposts, "repost"));
+    var view = linkEl("View post", p.href);
+    view.className = "post-link";
+    d.appendChild(view);
+    lbCap.appendChild(d);
     var body = document.createElement("div");
     body.appendChild(captionNodes(p.text, p.facets));
     var first = body.firstChild, last = body.lastChild;
@@ -275,8 +276,6 @@
     if (last && last.nodeType === 3) last.nodeValue = last.nodeValue.replace(/\s+$/, "");
     if (body.firstChild) body.appendChild(document.createTextNode(" "));
     body.appendChild(linkEl("@" + p.handle, "https://bsky.app/profile/" + p.handle));
-    body.appendChild(sepEl());
-    body.appendChild(linkEl("View post", p.href));
     lbCap.appendChild(body);
   }
 
