@@ -1,10 +1,9 @@
 // Edit this file to add, remove or rename galleries.
-// hover: "text" is shown in place of the name / tab while the pointer is over it
+// hover: "text" is shown in place of the tab name while the pointer is over it
 // (keep it short so it doesn't run into the neighbouring tabs).
 window.SITE = {
   minPhotoHeight: 420, // the enlarged photo never scales below this height; the rest is reached by scrolling
   maxRequests: 100, // safety limit on feed pages fetched per account (100 posts each)
-  homeHover: "HOME",       // shown in place of VERL ADAMS on hover
   slideInterval: 5000,     // home page slide show: how long each photo stays (ms)
   slideFade: 1500,         // ... and how long the fade between photos takes (ms)
   api: "https://public.api.bsky.app",
