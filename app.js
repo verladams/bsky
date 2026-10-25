@@ -15,13 +15,22 @@
 
   // ---- tabs ----
   var lbTabsEl = document.getElementById("lb-tabs"); // the viewer carries the same tabs
-  cfg.tabs.forEach(function (t) {
-    [tabsEl, lbTabsEl].forEach(function (nav) {
+  // Tabs are grouped into two rows of equal size (first half / second half). On wide screens the
+  // rows dissolve into one line; on narrow screens (see style.css) they stack as two rows.
+  var perRow = Math.ceil(cfg.tabs.length / 2);
+  [tabsEl, lbTabsEl].forEach(function (nav) {
+    var row;
+    cfg.tabs.forEach(function (t, i) {
+      if (i % perRow === 0) {
+        row = document.createElement("div");
+        row.className = "tab-row";
+        nav.appendChild(row);
+      }
       var a = document.createElement("a");
       a.href = "#/" + slug(t);
       a.textContent = t.name;
       a.dataset.slug = slug(t);
-      nav.appendChild(a);
+      row.appendChild(a);
     });
   });
 
@@ -106,7 +115,7 @@
     var tab = cfg.tabs.find(function (t) { return slug(t) === s; });
 
     [tabsEl, lbTabsEl].forEach(function (nav) {
-      Array.prototype.forEach.call(nav.children, function (a) {
+      Array.prototype.forEach.call(nav.querySelectorAll("a"), function (a) {
         a.classList.toggle("active", !!tab && a.dataset.slug === s);
       });
     });

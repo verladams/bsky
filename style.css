@@ -20,6 +20,7 @@ header { text-align: center; padding: 48px 16px 28px; }
   margin-right: -0.35em; /* balance trailing letter-spacing so the name is truly centred */
 }
 nav { margin-top: 22px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 34px; }
+.tab-row { display: contents; }  /* one line of tabs by default */
 nav a {
   color: var(--muted);
   text-decoration: none;
@@ -102,6 +103,12 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 .lb-arrow { top: var(--arrow-y, 50%); padding: 0 0 8px; height: 140px; margin-top: -70px; width: 70px; font-size: 3.4rem; z-index: 2; }
 .lb-prev { left: 0; }
 .lb-next { right: 0; }
+
+/* Too narrow for one line (e.g. a phone held upright): two even rows, first two tabs over the last two. */
+@media (max-width: 460px) {
+  nav { flex-direction: column; align-items: center; gap: 8px; }
+  .tab-row { display: flex; justify-content: center; gap: 34px; }
+}
 
 @media (max-width: 600px) {
   header { padding-top: 32px; }
