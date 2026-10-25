@@ -239,30 +239,29 @@
   }
 
   // Size the photo to fit the window, and make the caption exactly as wide as the photo.
-  // Caption height depends on its width, so settle on a size in a few passes.
+  // Only the date line and the first line of the caption are kept on screen with the photo;
+  // anything longer is reached by scrolling, so the photo never has to shrink for a long caption.
   function fit() {
     if (lb.hidden || !lbImg.naturalWidth) return;
     var stage = document.getElementById("lb-stage");
-    var cs = getComputedStyle(stage);
-    var availW = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    var availH = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var scroller = document.getElementById("lb-scroll");
+    var cs = getComputedStyle(scroller);
+    var availW = scroller.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var availH = scroller.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     var nw = lbImg.naturalWidth, nh = lbImg.naturalHeight;
-    var capGap = parseFloat(getComputedStyle(lbCap).marginTop);
-    lbCap.style.maxHeight = Math.floor(availH * 0.35) + "px";
-    var capH = 0, w = nw, h = nh;
-    for (var k = 0; k < 4; k++) {
-      var s = Math.min(availW / nw, (availH - capH - capGap) / nh, 1);
-      w = Math.floor(nw * s); h = Math.floor(nh * s);
-      lbFig.style.width = w + "px";
-      lbImg.style.width = w + "px";
-      lbImg.style.height = h + "px";
-      var nextCap = lbCap.offsetHeight;
-      if (nextCap === capH) break;
-      capH = nextCap;
-    }
-    // The photo stays pinned just under the header, with the caption hanging below it, so a
-    // narrower window shrinks it upward toward the header instead of letting it drift down.
-    // The arrows sit at the photo's vertical midpoint.
+    var ccs = getComputedStyle(lbCap);
+    var capGap = parseFloat(ccs.marginTop);
+    var line = parseFloat(ccs.lineHeight) || parseFloat(ccs.fontSize) * 1.7;
+    var dateEl = lbCap.querySelector(".lb-date");
+    var reserve = line + (dateEl ? dateEl.offsetHeight + parseFloat(getComputedStyle(dateEl).marginBottom) : 0);
+    var s = Math.min(availW / nw, (availH - capGap - reserve) / nh, 1);
+    if (!(s > 0)) s = Math.min(availW / nw, 1);
+    var w = Math.floor(nw * s), h = Math.floor(nh * s);
+    lbFig.style.width = w + "px";
+    lbImg.style.width = w + "px";
+    lbImg.style.height = h + "px";
+    // The photo stays pinned just under the header so a narrower window shrinks it upward;
+    // the arrows sit at the photo's vertical midpoint.
     lbFig.style.marginTop = "0";
     stage.style.setProperty("--arrow-y", (parseFloat(cs.paddingTop) + h / 2) + "px");
     lbFig.style.visibility = "visible";
@@ -274,6 +273,7 @@
     current = (i + photos.length) % photos.length;
     var p = photos[current];
     lbFig.style.visibility = "hidden";
+    document.getElementById("lb-scroll").scrollTop = 0;
     buildCaption(p);
     lbImg.alt = p.alt;
     if (lbImg.getAttribute("src") === p.full && lbImg.complete && lbImg.naturalWidth) fit();
@@ -296,7 +296,7 @@
   lb.querySelector(".lb-prev").addEventListener("click", function () { show(current - 1); });
   lb.querySelector(".lb-next").addEventListener("click", function () { show(current + 1); });
   // Clicking the empty backdrop closes; clicking the photo follows the link to bsky.app (new tab).
-  lb.addEventListener("click", function (e) { if (e.target === lb || e.target.id === "lb-stage") closeLightbox(); });
+  lb.addEventListener("click", function (e) { if (e.target === lb || e.target.id === "lb-stage" || e.target.id === "lb-scroll") closeLightbox(); });
   document.addEventListener("keydown", function (e) {
     if (lb.hidden) return;
     if (e.key === "Escape") closeLightbox();
