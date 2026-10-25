@@ -1,8 +1,7 @@
 // Edit this file to add, remove or rename galleries.
 window.SITE = {
-  imagesPerPage: 32,
   minPhotoHeight: 420, // the enlarged photo never scales below this height; the rest is reached by scrolling
-  poolSize: 200, // each page shows a random 32 from an account's most recent photos
+  maxRequests: 100, // safety limit on feed pages fetched per account (100 posts each)
   api: "https://public.api.bsky.app",
   tabs: [
     { name: "-|~|+",      handle: "verladams.bsky.social" },

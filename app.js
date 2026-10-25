@@ -46,10 +46,10 @@
     return "https://bsky.app/profile/" + handle + "/post/" + uri.split("/").pop();
   }
 
-  // Returns up to `limit` photos from one account's own (non-reply, non-repost) posts.
-  async function fetchPhotos(handle, limit) {
+  // Returns every photo from one account's posts and reposts (replies are left out).
+  async function fetchPhotos(handle) {
     var out = [], seen = {}, cursor = "", pages = 0;
-    while (out.length < limit && pages < 10) {
+    while (pages < cfg.maxRequests) {
       var url = cfg.api + "/xrpc/app.bsky.feed.getAuthorFeed?actor=" + encodeURIComponent(handle) +
         "&filter=posts_no_replies&limit=100" + (cursor ? "&cursor=" + encodeURIComponent(cursor) : "");
       var res = await fetch(url);
@@ -85,7 +85,14 @@
       pages++;
       if (!cursor) break;
     }
-    return out.slice(0, limit);
+    return out;
+  }
+
+  // Each account is fetched once per visit and reused when switching tabs; refreshing the page fetches again.
+  var cache = {};
+  function loadPhotos(handle) {
+    if (!cache[handle]) cache[handle] = fetchPhotos(handle).catch(function (e) { delete cache[handle]; throw e; });
+    return cache[handle];
   }
 
   function shuffle(a) {
@@ -136,16 +143,18 @@
       var list;
       if (tab) {
         // Draw from the account's recent photos and show a random selection.
-        list = shuffle(await fetchPhotos(tab.handle, cfg.poolSize)).slice(0, cfg.imagesPerPage);
+        list = shuffle((await loadPhotos(tab.handle)).slice());
       } else {
         // Home: pool photos from every account, shuffle, take a random 32.
         var results = await Promise.allSettled(cfg.tabs.map(function (t) {
-          return fetchPhotos(t.handle, cfg.poolSize);
+          return loadPhotos(t.handle);
         }));
         var pool = [];
         results.forEach(function (r) { if (r.status === "fulfilled") pool = pool.concat(r.value); });
         if (!pool.length) throw new Error("No photos could be loaded.");
-        list = shuffle(pool).slice(0, cfg.imagesPerPage);
+        var seen = {}; // the same photo can appear on two accounts (e.g. a repost); show it once
+        pool = pool.filter(function (p) { return seen[p.thumb] ? false : (seen[p.thumb] = true); });
+        list = shuffle(pool);
       }
       if (token !== renderToken) return; // user navigated away
       statusEl.textContent = list.length ? "" : "No photos yet.";
