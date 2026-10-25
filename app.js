@@ -14,12 +14,15 @@
   function slug(tab) { return tab.handle.split(".")[0]; }
 
   // ---- tabs ----
+  var lbTabsEl = document.getElementById("lb-tabs"); // the viewer carries the same tabs
   cfg.tabs.forEach(function (t) {
-    var a = document.createElement("a");
-    a.href = "#/" + slug(t);
-    a.textContent = t.name;
-    a.dataset.slug = slug(t);
-    tabsEl.appendChild(a);
+    [tabsEl, lbTabsEl].forEach(function (nav) {
+      var a = document.createElement("a");
+      a.href = "#/" + slug(t);
+      a.textContent = t.name;
+      a.dataset.slug = slug(t);
+      nav.appendChild(a);
+    });
   });
 
   // ---- Bluesky fetching ----
@@ -102,8 +105,10 @@
     var s = (location.hash.replace(/^#\/?/, "") || "");
     var tab = cfg.tabs.find(function (t) { return slug(t) === s; });
 
-    Array.prototype.forEach.call(tabsEl.children, function (a) {
-      a.classList.toggle("active", !!tab && a.dataset.slug === s);
+    [tabsEl, lbTabsEl].forEach(function (nav) {
+      Array.prototype.forEach.call(nav.children, function (a) {
+        a.classList.toggle("active", !!tab && a.dataset.slug === s);
+      });
     });
     document.title = tab ? "Verl Adams — " + tab.name : "Verl Adams";
     gridEl.textContent = "";
@@ -237,9 +242,10 @@
   // Caption height depends on its width, so settle on a size in a few passes.
   function fit() {
     if (lb.hidden || !lbImg.naturalWidth) return;
-    var cs = getComputedStyle(lb);
-    var availW = lb.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    var availH = lb.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var stage = document.getElementById("lb-stage");
+    var cs = getComputedStyle(stage);
+    var availW = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var availH = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     var nw = lbImg.naturalWidth, nh = lbImg.naturalHeight;
     var capGap = parseFloat(getComputedStyle(lbCap).marginTop);
     lbCap.style.maxHeight = Math.floor(availH * 0.35) + "px";
@@ -281,11 +287,11 @@
   lbPhoto.addEventListener("click", function () { show(current + 1); });
   lb.querySelector(".lb-close").addEventListener("click", closeLightbox);
   // Name link: go home; close the viewer even when we're already on the home hash.
-  lb.querySelector(".lb-name").addEventListener("click", closeLightbox);
+  lb.querySelector("header").addEventListener("click", function (e) { if (e.target.closest("a")) closeLightbox(); });
   lb.querySelector(".lb-prev").addEventListener("click", function () { show(current - 1); });
   lb.querySelector(".lb-next").addEventListener("click", function () { show(current + 1); });
   // Clicking the empty backdrop closes; clicking the photo follows the link to bsky.app (new tab).
-  lb.addEventListener("click", function (e) { if (e.target === lb) closeLightbox(); });
+  lb.addEventListener("click", function (e) { if (e.target === lb || e.target.id === "lb-stage") closeLightbox(); });
   document.addEventListener("keydown", function (e) {
     if (lb.hidden) return;
     if (e.key === "Escape") closeLightbox();

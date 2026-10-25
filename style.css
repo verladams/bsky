@@ -63,10 +63,16 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 .lightbox {
   position: fixed; inset: 0; z-index: 10;
   background: #fff;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; flex-direction: column;
+  overflow: hidden;
 }
 .lightbox[hidden] { display: none; }
-.lightbox { padding: 88px 80px 40px; }
+.lightbox header { flex: none; }  /* same header as the gallery pages */
+.lb-stage {
+  position: relative; flex: 1 1 auto; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 80px 40px;
+}
 .lb-fig { margin: 0; visibility: hidden; } /* sized by app.js once the photo has loaded */
 .lb-photo { cursor: pointer; }
 .lb-photo img { display: block; }
@@ -93,15 +99,13 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 .lb-arrow { top: 50%; height: 140px; margin-top: -70px; width: 70px; font-size: 3.4rem; z-index: 2; }
 .lb-prev { left: 0; }
 .lb-next { right: 0; }
-.lb-name { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); z-index: 2; font-size: 1.1rem; white-space: nowrap; margin-right: 0; }
 
 @media (max-width: 600px) {
   header { padding-top: 32px; }
   .name { font-size: 1.25rem; }
   main { padding: 0 10px 40px; }
   .grid { gap: 8px; }
-  .lightbox { padding: 70px 10px 20px; }
+  .lb-stage { padding: 0 10px 20px; }
   .lb-cap { font-size: .75rem; }
   .lb-arrow { width: 44px; font-size: 2.6rem; }
-  .lb-name { font-size: .95rem; }
 }
