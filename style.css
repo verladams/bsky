@@ -15,11 +15,13 @@ header { text-align: center; padding: 24px 16px 28px; }
 body > header { position: fixed; top: 0; left: 0; right: 0; z-index: 5; background: #fff; }
 body { padding-top: var(--head-h, 129px); }
 .name {
+  --name-fs: 1.6rem;
+  position: relative;
   display: inline-block;
   color: var(--ink);
   text-decoration: none;
   font-weight: 300;
-  font-size: 1.6rem;
+  font-size: var(--name-fs);
   letter-spacing: 0.35em;
   margin-right: -0.35em; /* balance trailing letter-spacing so the name is truly centred */
 }
@@ -38,11 +40,12 @@ nav a {
 nav a:hover, nav a.active { color: var(--ink); }
 /* Hover text: sits centred over the tab, so the tab's own width (and its neighbours) never move. */
 nav a { position: relative; }
-nav a .t-sub { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); white-space: nowrap; font-size: .74rem; letter-spacing: .08em; opacity: 0; pointer-events: none; } /* a little tighter than the tab names so longer hover text keeps clear of its neighbours */
-nav a .t-name, nav a .t-sub { transition: opacity .2s; }
+.t-sub { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; font-size: .66rem; letter-spacing: .1em; padding-left: .1em; opacity: 0; pointer-events: none; } /* smaller than the text it replaces, so it never crowds the neighbouring tabs */
+.name .t-sub { left: calc(50% - .175 * var(--name-fs)); font-size: calc(var(--name-fs) * .62); letter-spacing: .3em; padding-left: .3em; }
+.t-name, .t-sub { transition: opacity .2s; }
 @media (hover: hover) {
-  nav a.has-sub:hover .t-sub { opacity: 1; }
-  nav a.has-sub:hover .t-name { opacity: 0; }
+  .has-sub:hover .t-sub { opacity: 1; }
+  .has-sub:hover .t-name { opacity: 0; }
 }
 nav a.active { border-bottom-color: var(--ink); }
 
@@ -71,6 +74,14 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 
 .status { text-align: center; color: var(--muted); font-size: .8rem; letter-spacing: .12em; margin-top: 40px; }
 .status:empty { display: none; }
+
+/* Home page slide show: one photo at a time, fading between them */
+.slides { position: fixed; left: 0; right: 0; bottom: 0; top: var(--head-h, 129px); }
+.slides[hidden] { display: none; }
+.slide-stage { position: absolute; inset: 0 24px 24px; }
+.slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity var(--fade, 1500ms) ease-in-out; }
+body.home main { visibility: hidden; }
+body.home main .status { visibility: visible; }
 
 /* Lightbox */
 .lightbox {
@@ -128,9 +139,10 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 }
 
 @media (max-width: 600px) {
-  .name { font-size: 1.25rem; }
+  .name { --name-fs: 1.25rem; }
   main { padding: 0 10px 40px; }
   .grid { gap: 8px; }
+  .slide-stage { inset: 0 10px 10px; }
   .lb-scroll { padding: 0 10px 10px; }
   .lb-scroll header { margin: 0 -10px; }
   .lb-cap { font-size: .75rem; }

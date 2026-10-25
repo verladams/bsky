@@ -52,6 +52,23 @@
     });
   });
 
+  // "VERL ADAMS" shows cfg.homeHover while the pointer is over it.
+  Array.prototype.forEach.call(document.querySelectorAll(".name"), function (n) {
+    var label = document.createElement("span");
+    label.className = "t-name";
+    label.textContent = n.textContent;
+    n.textContent = "";
+    n.appendChild(label);
+    if (cfg.homeHover) {
+      var sub = document.createElement("span");
+      sub.className = "t-sub";
+      sub.setAttribute("aria-hidden", "true");
+      sub.textContent = cfg.homeHover;
+      n.appendChild(sub);
+      n.classList.add("has-sub");
+    }
+  });
+
   // ---- Bluesky fetching ----
   function postUrl(handle, uri) {
     return "https://bsky.app/profile/" + handle + "/post/" + uri.split("/").pop();
@@ -135,6 +152,64 @@
     });
   }
 
+  // ---- home page slide show ----
+  var slidesEl = document.getElementById("slides");
+  var layers = Array.prototype.slice.call(slidesEl.querySelectorAll(".slide"));
+  var slideRun = 0, slideTimer = null;
+  slidesEl.style.setProperty("--fade", cfg.slideFade + "ms");
+
+  function stopSlides() {
+    slideRun++;
+    clearTimeout(slideTimer);
+    slidesEl.hidden = true;
+    document.body.classList.remove("home");
+    layers.forEach(function (l) { l.style.opacity = 0; l.removeAttribute("src"); });
+  }
+
+  // Shows the photos one at a time in random order, fading each into the next.
+  function startSlides(list) {
+    stopSlides();
+    var run = slideRun, i = 0, front = 0;
+    slidesEl.hidden = false;
+    document.body.classList.add("home");
+
+    function preload(p) {
+      return new Promise(function (resolve) {
+        var im = new Image();
+        im.onload = function () { resolve(true); };
+        im.onerror = function () { resolve(false); };
+        im.src = p.full;
+      });
+    }
+
+    async function step() {
+      if (run !== slideRun) return;
+      if (document.hidden) { slideTimer = setTimeout(step, 1000); return; } // wait while the tab is in the background
+      var ok = false, tries = 0;
+      while (!ok && tries < 5 && run === slideRun) { // skip any photo that fails to load
+        ok = await preload(list[i]);
+        if (!ok) { i = (i + 1) % list.length; tries++; }
+      }
+      if (run !== slideRun) return;
+      if (!ok) { statusEl.textContent = "Couldn\u2019t load photos from Bluesky. Please try again later."; return; }
+
+      var next = layers[1 - front], prev = layers[front];
+      next.src = list[i].full;
+      next.alt = list[i].alt;
+      try { await next.decode(); } catch (e) { /* shown anyway */ }
+      if (run !== slideRun) return;
+      statusEl.textContent = "";
+      next.style.opacity = 1;
+      prev.style.opacity = 0;
+      front = 1 - front;
+
+      i++;
+      if (i >= list.length) { i = 0; shuffle(list); } // everything has been shown: start a new random round
+      slideTimer = setTimeout(step, cfg.slideInterval);
+    }
+    step();
+  }
+
   async function route() {
     var token = ++renderToken;
     closeLightbox();
@@ -147,6 +222,7 @@
       });
     });
     document.title = tab ? "Verl Adams — " + tab.name : "Verl Adams";
+    stopSlides();
     gridEl.textContent = "";
     statusEl.textContent = "Loading…";
 
@@ -156,7 +232,7 @@
         // Draw from the account's recent photos and show a random selection.
         list = shuffle((await loadPhotos(tab.handle)).slice());
       } else {
-        // Home: pool photos from every account, shuffle, take a random 32.
+        // Home: pool the photos from every account.
         var results = await Promise.allSettled(cfg.tabs.map(function (t) {
           return loadPhotos(t.handle);
         }));
@@ -168,6 +244,12 @@
         list = shuffle(pool);
       }
       if (token !== renderToken) return; // user navigated away
+      if (!tab) {
+        // Home page: a slide show instead of a gallery.
+        if (!list.length) { statusEl.textContent = "No photos yet."; return; }
+        startSlides(list); // clears the "Loading" message when the first photo is up
+        return;
+      }
       statusEl.textContent = list.length ? "" : "No photos yet.";
       draw(list);
     } catch (e) {
