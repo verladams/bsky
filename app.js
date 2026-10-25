@@ -239,8 +239,8 @@
   }
 
   // Size the photo to fit the window, and make the caption exactly as wide as the photo.
-  // Only the date line and the first line of the caption are kept on screen with the photo;
-  // anything longer is reached by scrolling, so the photo never has to shrink for a long caption.
+  // Only the "Posted:" line is kept on screen with the photo; the caption text below it is
+  // reached by scrolling, so the photo never has to shrink to make room for it.
   function fit() {
     if (lb.hidden || !lbImg.naturalWidth) return;
     var stage = document.getElementById("lb-stage");
@@ -253,7 +253,7 @@
     var capGap = parseFloat(ccs.marginTop);
     var line = parseFloat(ccs.lineHeight) || parseFloat(ccs.fontSize) * 1.7;
     var dateEl = lbCap.querySelector(".lb-date");
-    var reserve = line + (dateEl ? dateEl.offsetHeight + parseFloat(getComputedStyle(dateEl).marginBottom) : 0);
+    var reserve = dateEl ? dateEl.offsetHeight : line;
     var s = Math.min(availW / nw, (availH - capGap - reserve) / nh, 1);
     if (!(s > 0)) s = Math.min(availW / nw, 1);
     var w = Math.floor(nw * s), h = Math.floor(nh * s);

@@ -69,19 +69,20 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
 .lightbox[hidden] { display: none; }
 .lightbox header { flex: none; }  /* same header as the gallery pages */
 .lb-stage { position: relative; flex: 1 1 auto; min-height: 0; }
-/* Scrolls when the caption runs longer than the window; the photo is sized to leave room for only its first line. */
+/* Scrolls when the caption runs longer than the window; the photo is sized to leave room for only the "Posted:" line. */
 .lb-scroll {
   position: absolute; inset: 0;
   overflow-x: hidden; overflow-y: auto;
   scrollbar-gutter: stable both-edges;
   -webkit-overflow-scrolling: touch;
-  padding: 0 80px 40px;
+  padding: 0 80px 16px;
 }
 .lb-fig { margin: 0 auto; visibility: hidden; } /* sized by app.js once the photo has loaded */
 .lb-photo { cursor: pointer; }
 .lb-photo img { display: block; }
 .lb-cap {
   margin-top: 14px;
+  padding-bottom: 24px; /* breathing room at the end of the scroll */
   text-align: left;
   font-size: .8rem;
   line-height: 1.7;
@@ -107,7 +108,7 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
   .name { font-size: 1.25rem; }
   main { padding: 0 10px 40px; }
   .grid { gap: 8px; }
-  .lb-scroll { padding: 0 10px 20px; }
+  .lb-scroll { padding: 0 10px 10px; }
   .lb-cap { font-size: .75rem; }
   .lb-arrow { width: 44px; font-size: 2.6rem; }
 }
