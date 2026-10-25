@@ -9,7 +9,9 @@ body {
   font-weight: 300;
 }
 
-header { text-align: center; padding: 24px 16px 28px; } /* top gap ~ the name-to-tabs gap */
+header { text-align: center; padding: 24px 16px 28px; }
+/* Gallery pages: the header stays put while the photos scroll beneath it. */
+body > header { position: sticky; top: 0; z-index: 5; background: #fff; } /* top gap ~ the name-to-tabs gap */
 .name {
   display: inline-block;
   color: var(--ink);
@@ -68,7 +70,8 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
   overflow: hidden;
 }
 .lightbox[hidden] { display: none; }
-.lightbox header { flex: none; }  /* same header as the gallery pages */
+/* Lightbox: the header (same look as the gallery pages) scrolls away with the photo and caption. */
+.lb-scroll header { margin: 0 -80px; }
 .lb-stage { position: relative; flex: 1 1 auto; min-height: 0; }
 /* Scrolls when the caption runs longer than the window; the photo is sized to leave room for only the "Posted:" line. */
 .lb-scroll {
@@ -115,6 +118,7 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
   main { padding: 0 10px 40px; }
   .grid { gap: 8px; }
   .lb-scroll { padding: 0 10px 10px; }
+  .lb-scroll header { margin: 0 -10px; }
   .lb-cap { font-size: .75rem; }
   .lb-arrow { width: 44px; font-size: 2.6rem; }
 }

@@ -247,6 +247,14 @@
     lbCap.appendChild(body);
   }
 
+  var photoMid = 0;
+  function placeArrows() {
+    var sc = document.getElementById("lb-scroll");
+    var y = Math.max(70, Math.min(photoMid - sc.scrollTop, sc.clientHeight - 70));
+    document.getElementById("lb-stage").style.setProperty("--arrow-y", y + "px");
+  }
+  document.getElementById("lb-scroll").addEventListener("scroll", placeArrows, { passive: true });
+
   // Size the photo to fit the window, and make the caption exactly as wide as the photo.
   // Only the "Posted:" line is kept on screen with the photo; the caption text below it is
   // reached by scrolling, so the photo never has to shrink to make room for it.
@@ -256,7 +264,8 @@
     var scroller = document.getElementById("lb-scroll");
     var cs = getComputedStyle(scroller);
     var availW = scroller.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    var availH = scroller.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var headH = scroller.querySelector("header").offsetHeight;
+    var availH = scroller.clientHeight - headH - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     var nw = lbImg.naturalWidth, nh = lbImg.naturalHeight;
     var ccs = getComputedStyle(lbCap);
     var capGap = parseFloat(ccs.marginTop);
@@ -274,8 +283,9 @@
     // The photo stays pinned just under the header so a narrower window shrinks it upward;
     // the arrows sit at the photo's vertical midpoint.
     lbFig.style.marginTop = "0";
-    // (if the photo is taller than the window, they stay at the middle of the visible area)
-    stage.style.setProperty("--arrow-y", Math.min(parseFloat(cs.paddingTop) + h / 2, scroller.clientHeight / 2) + "px");
+    // The arrows follow the photo's midpoint as the page scrolls, staying within view.
+    photoMid = headH + parseFloat(cs.paddingTop) + h / 2;
+    placeArrows();
     lbFig.style.visibility = "visible";
   }
   lbImg.addEventListener("load", fit);
