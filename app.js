@@ -52,7 +52,10 @@
             thumb: img.thumb,
             full: img.fullsize,
             alt: img.alt || "",
-            href: postUrl(post.author.handle, post.uri)
+            href: postUrl(post.author.handle, post.uri),
+            handle: post.author.handle,
+            text: (post.record && post.record.text) || "",
+            facets: (post.record && post.record.facets) || []
           });
         });
       });
@@ -130,12 +133,97 @@
   }
 
   // ---- lightbox ----
+  var lbFig = document.getElementById("lb-fig");
+  var lbCap = document.getElementById("lb-cap");
+
+  // Caption text without hashtags. Links in the text stay clickable.
+  function captionNodes(text, facets) {
+    var bytes = new TextEncoder().encode(text), dec = new TextDecoder();
+    var segs = [];
+    function add(s, href) {
+      var last = segs[segs.length - 1];
+      if (!href && last && !last.href) last.s += s; else segs.push({ s: s, href: href });
+    }
+    var pos = 0;
+    facets.slice().sort(function (a, b) { return a.index.byteStart - b.index.byteStart; }).forEach(function (f) {
+      if (f.index.byteStart < pos) return;
+      add(dec.decode(bytes.slice(pos, f.index.byteStart)));
+      var piece = dec.decode(bytes.slice(f.index.byteStart, f.index.byteEnd));
+      var feat = (f.features || [])[0] || {};
+      if (feat.$type === "app.bsky.richtext.facet#link") add(piece, feat.uri);
+      else if (feat.$type === "app.bsky.richtext.facet#mention") add(piece, "https://bsky.app/profile/" + feat.did);
+      else if (feat.$type === "app.bsky.richtext.facet#tag") { /* hashtags are left out */ }
+      else add(piece);
+      pos = f.index.byteEnd;
+    });
+    add(dec.decode(bytes.slice(pos)));
+    var frag = document.createDocumentFragment();
+    segs.forEach(function (g) {
+      var s = g.href ? g.s : g.s.replace(/#[\p{L}][\p{L}\p{N}_]*/gu, "").replace(/\s+/g, " ");
+      if (!s) return;
+      if (g.href) {
+        var a = document.createElement("a");
+        a.href = g.href; a.textContent = s; a.target = "_blank"; a.rel = "noopener noreferrer";
+        frag.appendChild(a);
+      } else frag.appendChild(document.createTextNode(s));
+    });
+    return frag;
+  }
+
+  function sepEl() { var s = document.createElement("span"); s.className = "sep"; s.textContent = "\u00b7"; return s; }
+  function linkEl(label, href) {
+    var a = document.createElement("a");
+    a.href = href; a.textContent = label; a.target = "_blank"; a.rel = "noopener noreferrer";
+    return a;
+  }
+
+  function buildCaption(p) {
+    lbCap.textContent = "";
+    lbCap.appendChild(captionNodes(p.text, p.facets));
+    var first = lbCap.firstChild, last = lbCap.lastChild;
+    if (first && first.nodeType === 3) first.nodeValue = first.nodeValue.replace(/^\s+/, "");
+    if (last && last.nodeType === 3) last.nodeValue = last.nodeValue.replace(/\s+$/, "");
+    if (lbCap.firstChild) lbCap.appendChild(document.createTextNode(" "));
+    lbCap.appendChild(linkEl("@" + p.handle, "https://bsky.app/profile/" + p.handle));
+    lbCap.appendChild(sepEl());
+    lbCap.appendChild(linkEl("View post", p.href));
+  }
+
+  // Size the photo to fit the window, and make the caption exactly as wide as the photo.
+  // Caption height depends on its width, so settle on a size in a few passes.
+  function fit() {
+    if (lb.hidden || !lbImg.naturalWidth) return;
+    var cs = getComputedStyle(lb);
+    var availW = lb.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var availH = lb.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var nw = lbImg.naturalWidth, nh = lbImg.naturalHeight;
+    var capGap = parseFloat(getComputedStyle(lbCap).marginTop);
+    lbCap.style.maxHeight = Math.floor(availH * 0.35) + "px";
+    var capH = 0, w = nw, h = nh;
+    for (var k = 0; k < 4; k++) {
+      var s = Math.min(availW / nw, (availH - capH - capGap) / nh, 1);
+      w = Math.floor(nw * s); h = Math.floor(nh * s);
+      lbFig.style.width = w + "px";
+      lbImg.style.width = w + "px";
+      lbImg.style.height = h + "px";
+      var nextCap = lbCap.offsetHeight;
+      if (nextCap === capH) break;
+      capH = nextCap;
+    }
+    lbFig.style.visibility = "visible";
+  }
+  lbImg.addEventListener("load", fit);
+  window.addEventListener("resize", fit);
+
   function show(i) {
     current = (i + photos.length) % photos.length;
     var p = photos[current];
-    lbImg.src = p.full;
+    lbFig.style.visibility = "hidden";
+    buildCaption(p);
     lbImg.alt = p.alt;
     lbLink.href = p.href;
+    if (lbImg.getAttribute("src") === p.full && lbImg.complete && lbImg.naturalWidth) fit();
+    else lbImg.src = p.full;
   }
   function openLightbox(i) {
     lb.hidden = false;

@@ -66,9 +66,23 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
   display: flex; align-items: center; justify-content: center;
 }
 .lightbox[hidden] { display: none; }
-.lightbox { padding: 100px 0 40px; }
-.lb-link { display: block; max-width: calc(100vw - 160px); max-height: calc(100vh - 140px); cursor: pointer; }
-.lb-link img { display: block; max-width: calc(100vw - 160px); max-height: calc(100vh - 140px); object-fit: contain; }
+.lightbox { padding: 88px 80px 40px; }
+.lb-fig { margin: 0; visibility: hidden; } /* sized by app.js once the photo has loaded */
+.lb-link { display: block; cursor: pointer; }
+.lb-link img { display: block; }
+.lb-cap {
+  margin-top: 14px;
+  max-height: 35vh;
+  overflow-y: auto;
+  text-align: left;
+  font-size: .8rem;
+  line-height: 1.7;
+  letter-spacing: .02em;
+  color: #555;
+}
+.lb-cap a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); transition: border-color .2s; }
+.lb-cap a:hover { border-bottom-color: var(--ink); }
+.lb-cap .sep { color: var(--muted); margin: 0 .5em; }
 .lightbox button {
   position: absolute; background: none; border: 0; color: var(--ink);
   cursor: pointer; font-family: inherit; font-weight: 300; opacity: .55; transition: opacity .2s;
@@ -85,8 +99,8 @@ main { padding: 0 24px 64px; max-width: 1600px; margin: 0 auto; }
   .name { font-size: 1.25rem; }
   main { padding: 0 10px 40px; }
   .grid { gap: 8px; }
-  .lightbox { padding: 76px 0 24px; }
-  .lb-link, .lb-link img { max-width: calc(100vw - 20px); max-height: calc(100vh - 100px); }
+  .lightbox { padding: 70px 10px 20px; }
+  .lb-cap { font-size: .75rem; }
   .lb-arrow { width: 44px; font-size: 2.6rem; }
   .lb-name { font-size: .95rem; }
 }
