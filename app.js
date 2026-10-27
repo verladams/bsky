@@ -392,6 +392,7 @@
     lbCap.appendChild(body);
   }
 
+  var LB_FADE = Math.min(450, cfg.slideFade); // same as the home page slide show when clicked
   var photoMid = 0, keepScroll = null;
   function placeArrows() {
     var sc = document.getElementById("lb-scroll");
@@ -432,28 +433,39 @@
     photoMid = headH + parseFloat(cs.paddingTop) + h / 2;
     if (keepScroll !== null) { scroller.scrollTop = keepScroll; keepScroll = null; } // same scroll position on the next photo
     placeArrows();
-    lbFig.style.visibility = "visible";
+    if (!swapping) lbFig.classList.add("on");
   }
   lbImg.addEventListener("load", fit);
   window.addEventListener("resize", fit);
 
-  function show(i) {
-    current = (i + photos.length) % photos.length;
-    var p = photos[current];
-    lbFig.style.visibility = "hidden";
+  // Moving between photos fades the old one out, swaps it, then fades the new one in.
+  var swapping = false, swapTimer = null;
+  function swap(p) {
+    swapping = false;
     keepScroll = document.getElementById("lb-scroll").scrollTop; // restored once the new photo is sized
     buildCaption(p);
     lbImg.alt = p.alt;
     if (lbImg.getAttribute("src") === p.full && lbImg.complete && lbImg.naturalWidth) fit();
     else lbImg.src = p.full;
   }
+  function show(i, instant) {
+    current = (i + photos.length) % photos.length;
+    var p = photos[current];
+    clearTimeout(swapTimer);
+    lbFig.classList.remove("on");
+    if (instant) { swap(p); return; }
+    swapping = true;
+    swapTimer = setTimeout(function () { swap(p); }, LB_FADE);
+  }
   function openLightbox(i) {
     lb.hidden = false;
     document.body.style.overflow = "hidden";
     document.getElementById("lb-scroll").scrollTop = 0; // a fresh viewer always starts at the top
-    show(i);
+    show(i, true);
   }
   function closeLightbox() {
+    clearTimeout(swapTimer);
+    swapping = false;
     lb.hidden = true;
     lbImg.removeAttribute("src");
     document.body.style.overflow = "";
