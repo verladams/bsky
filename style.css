@@ -103,8 +103,11 @@ body.home main .status { visibility: visible; }
   -webkit-overflow-scrolling: touch;
   padding: 0 80px 16px;
 }
-.lb-fig { margin: 0 auto; opacity: 0; transition: opacity 450ms ease-in-out; }
-.lb-fig.on { opacity: 1; } /* sized by app.js once the photo has loaded */
+.lb-fig { margin: 0 auto; opacity: 0; transition: opacity 450ms ease-in-out; } /* sized by app.js once the photo has loaded */
+.lb-fig.on { opacity: 1; }
+.lb-photo img, .lb-cap { transition: opacity 450ms ease-in-out; }
+.lb-photo img.pending, .lb-cap.pending { opacity: 0; }
+.lb-ghost { position: fixed; z-index: 1; pointer-events: none; opacity: 1; transition: opacity 450ms ease-in-out; }
 .lb-photo { cursor: pointer; }
 .lb-photo img { display: block; }
 .lb-cap {

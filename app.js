@@ -433,29 +433,58 @@
     photoMid = headH + parseFloat(cs.paddingTop) + h / 2;
     if (keepScroll !== null) { scroller.scrollTop = keepScroll; keepScroll = null; } // same scroll position on the next photo
     placeArrows();
-    if (!swapping) lbFig.classList.add("on");
+    lbFig.classList.add("on");
   }
-  lbImg.addEventListener("load", fit);
+  lbImg.addEventListener("load", function () { if (awaiting) reveal(); else fit(); });
   window.addEventListener("resize", fit);
 
-  // Moving between photos fades the old one out, swaps it, then fades the new one in.
-  var swapping = false, swapTimer = null;
-  function swap(p) {
-    swapping = false;
+  // Moving between photos cross-fades: the old photo is left on screen as a ghost while the
+  // new one loads, then the ghost fades out as the new photo (and its caption) fades in.
+  var ghost = null, ghostTimer = null, awaiting = false;
+  function dropGhost() {
+    clearTimeout(ghostTimer);
+    if (ghost) { ghost.remove(); ghost = null; }
+  }
+  function makeGhost() {
+    if (ghost || !lbImg.getAttribute("src") || !lbImg.naturalWidth) return;
+    var r = lbImg.getBoundingClientRect();
+    ghost = lbImg.cloneNode(false);
+    ghost.removeAttribute("id");
+    ghost.className = "lb-ghost";
+    ghost.alt = "";
+    ghost.style.cssText = "left:" + r.left + "px;top:" + r.top + "px;width:" + r.width + "px;height:" + r.height + "px";
+    lb.appendChild(ghost);
+  }
+  function reveal() {
+    awaiting = false;
     keepScroll = document.getElementById("lb-scroll").scrollTop; // restored once the new photo is sized
-    buildCaption(p);
-    lbImg.alt = p.alt;
-    if (lbImg.getAttribute("src") === p.full && lbImg.complete && lbImg.naturalWidth) fit();
-    else lbImg.src = p.full;
+    buildCaption(photos[current]);
+    fit();
+    lbImg.classList.remove("pending");
+    lbCap.classList.remove("pending");
+    if (ghost) {
+      var g = ghost;
+      void g.offsetWidth;
+      g.style.opacity = "0";
+      ghostTimer = setTimeout(function () { if (ghost === g) dropGhost(); }, LB_FADE + 50);
+    }
   }
   function show(i, instant) {
     current = (i + photos.length) % photos.length;
     var p = photos[current];
-    clearTimeout(swapTimer);
-    lbFig.classList.remove("on");
-    if (instant) { swap(p); return; }
-    swapping = true;
-    swapTimer = setTimeout(function () { swap(p); }, LB_FADE);
+    lbImg.alt = p.alt;
+    awaiting = true;
+    if (instant) {
+      dropGhost();
+      lbFig.classList.remove("on");
+    } else {
+      clearTimeout(ghostTimer);
+      makeGhost();
+      lbImg.classList.add("pending");
+      lbCap.classList.add("pending");
+    }
+    if (lbImg.getAttribute("src") === p.full && lbImg.complete && lbImg.naturalWidth) reveal();
+    else lbImg.src = p.full;
   }
   function openLightbox(i) {
     lb.hidden = false;
@@ -464,8 +493,8 @@
     show(i, true);
   }
   function closeLightbox() {
-    clearTimeout(swapTimer);
-    swapping = false;
+    dropGhost();
+    awaiting = false;
     lb.hidden = true;
     lbImg.removeAttribute("src");
     document.body.style.overflow = "";
